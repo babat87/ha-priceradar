@@ -1,4 +1,6 @@
 {
   "name": "PriceRadar",
-  "render_readme": true
+  "render_readme": true,
+  "homeassistant": "2023.1.0",
+  "content_in_root": false
 }
