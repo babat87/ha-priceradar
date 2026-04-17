@@ -1,0 +1,39 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up PriceRadar",
+        "description": "Enter your postal code and the products you want to monitor.",
+        "data": {
+          "postal_code": "Postal code (5 digits)",
+          "products": "Products (comma-separated, e.g. milk, butter, bread)",
+          "max_offers": "Maximum offers per product",
+          "update_interval": "Update interval (hours)"
+        }
+      }
+    },
+    "error": {
+      "invalid_postal_code": "Please enter a valid 5-digit postal code.",
+      "no_products": "Please enter at least one product.",
+      "cannot_connect": "Failed to connect to the Marktguru API. Please check your internet connection."
+    },
+    "abort": {
+      "already_configured": "PriceRadar for this postal code is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PriceRadar Options",
+        "data": {
+          "products": "Products (comma-separated)",
+          "max_offers": "Maximum offers per product",
+          "update_interval": "Update interval (hours)"
+        }
+      }
+    },
+    "error": {
+      "no_products": "Please enter at least one product."
+    }
+  }
+}

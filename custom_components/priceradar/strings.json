@@ -1,0 +1,39 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "PriceRadar einrichten",
+        "description": "Gib deine Postleitzahl und die Produkte ein, die du beobachten möchtest.",
+        "data": {
+          "postal_code": "Postleitzahl (5-stellig)",
+          "products": "Produkte (kommagetrennt, z.B. Milch, Butter, Brot)",
+          "max_offers": "Maximale Angebote pro Produkt",
+          "update_interval": "Aktualisierungsintervall (Stunden)"
+        }
+      }
+    },
+    "error": {
+      "invalid_postal_code": "Bitte eine gültige 5-stellige Postleitzahl eingeben.",
+      "no_products": "Bitte mindestens ein Produkt eingeben.",
+      "cannot_connect": "Verbindung zur Marktguru-API fehlgeschlagen. Bitte Internetverbindung prüfen."
+    },
+    "abort": {
+      "already_configured": "PriceRadar für diese Postleitzahl ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PriceRadar Einstellungen",
+        "data": {
+          "products": "Produkte (kommagetrennt)",
+          "max_offers": "Maximale Angebote pro Produkt",
+          "update_interval": "Aktualisierungsintervall (Stunden)"
+        }
+      }
+    },
+    "error": {
+      "no_products": "Bitte mindestens ein Produkt eingeben."
+    }
+  }
+}
