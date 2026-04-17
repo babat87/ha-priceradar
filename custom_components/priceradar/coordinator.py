@@ -120,6 +120,6 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
             "retailer_color": "",
             "valid_from": validity.get("from", ""),
             "valid_to": validity.get("to", ""),
-            "image_url": "",
+            "image_url": f"https://mg2de.b-cdn.net/api/v1/offers/{offer.get('id')}/images/default/0/medium.webp" if offer.get("id") else "",
             "category": categories[0].get("name", "") if categories else "",
         }

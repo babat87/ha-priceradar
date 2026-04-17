@@ -70,6 +70,13 @@ class PriceRadarSensor(CoordinatorEntity, SensorEntity):
         return offer.get("price")
 
     @property
+    def entity_picture(self) -> str | None:
+        offer = self.best_offer
+        if offer is None:
+            return None
+        return offer.get("image_url") or None
+
+    @property
     def extra_state_attributes(self) -> dict:
         offer = self.best_offer
         offers = self.offers
@@ -82,7 +89,9 @@ class PriceRadarSensor(CoordinatorEntity, SensorEntity):
             attrs[ATTR_BEST_PRICE] = offer.get("price")
             attrs[ATTR_BEST_STORE] = offer.get("retailer")
             attrs[ATTR_VALID_UNTIL] = offer.get("valid_to")
+            attrs["description"] = offer.get("description", "")
         return attrs
+
 
     @property
     def available(self) -> bool:
