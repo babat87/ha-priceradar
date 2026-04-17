@@ -4,40 +4,55 @@ import logging
 import pathlib
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.components.http import StaticPathConfig
+from homeassistant.core import HomeAssistant, Event
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN, PLATFORMS, URL_BASE, CARD_URL
+from .const import DOMAIN, PLATFORMS, CARD_URL
 from .coordinator import PriceRadarCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-
-LOVELACE_RESOURCE_URL = CARD_URL
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     card_path = pathlib.Path(__file__).parent / "priceradar-card.js"
-    if card_path.exists():
-        await hass.http.async_register_static_paths([
-            StaticPathConfig(LOVELACE_RESOURCE_URL, str(card_path), False)
-        ])
-        await _async_register_lovelace_resource(hass, LOVELACE_RESOURCE_URL)
+    if not card_path.exists():
+        _LOGGER.warning("PriceRadar card JS not found at %s", card_path)
+        return True
+
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(CARD_URL, str(card_path), False)
+    ])
+
+    async def _register_resource_when_ready(event: Event) -> None:
+        await _async_register_lovelace_resource(hass, CARD_URL)
+
+    if hass.is_running:
+        await _async_register_lovelace_resource(hass, CARD_URL)
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register_resource_when_ready)
 
     return True
 
 
 async def _async_register_lovelace_resource(hass: HomeAssistant, url: str) -> None:
     try:
-        resources = hass.data.get("lovelace", {}).get("resources")
-        if resources is None:
-            _LOGGER.debug("Lovelace resources not available yet, skipping registration")
+        lovelace = hass.data.get("lovelace")
+        if lovelace is None:
+            _LOGGER.debug("Lovelace not loaded, cannot register resource")
             return
 
-        existing = [r["url"] for r in resources.async_items()]
-        if url in existing:
+        resources = lovelace.get("resources")
+        if resources is None:
+            _LOGGER.debug("Lovelace resources storage not available")
+            return
+
+        existing_urls = {r["url"] for r in resources.async_items()}
+        if url in existing_urls:
+            _LOGGER.debug("PriceRadar resource already registered: %s", url)
             return
 
         await resources.async_create_item({"res_type": "module", "url": url})
