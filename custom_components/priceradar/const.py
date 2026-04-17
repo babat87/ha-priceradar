@@ -1,7 +1,7 @@
 DOMAIN = "priceradar"
 PLATFORMS = ["sensor"]
 
-MARKTGURU_API_URL = "https://www.marktguru.de/api/v1/offers"
+MARKTGURU_API_URL = "https://api.marktguru.de/api/v1/offers"
 MARKTGURU_HEADERS = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
@@ -12,6 +12,8 @@ MARKTGURU_HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/120.0.0.0 Safari/537.36"
     ),
+    "X-Apikey": "8Kk+pmbf7TgJ9nVj2cXeA7P5zBGv8iuutVVMRfOfvNE=",
+    "X-Clientkey": "WU/RH+PMGDi+gkZer3WbMelt6zcYHSTytNB7VpTia90=",
 }
 
 CONF_POSTAL_CODE = "postal_code"

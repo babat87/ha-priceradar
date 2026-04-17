@@ -62,7 +62,7 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
         params = {
             "as": "web",
             "limit": self.max_offers,
-            "postal_code": self.postal_code,
+            "zipCode": self.postal_code,
             "q": product,
         }
         timeout = aiohttp.ClientTimeout(total=30)
@@ -80,7 +80,7 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
                     raise UpdateFailed(f"HTTP {response.status} für '{product}'")
 
                 data = await response.json(content_type=None)
-                offers = data.get("offers", [])
+                offers = data.get("results", [])
                 return [self._parse_offer(o) for o in offers if o.get("price") is not None]
 
         except aiohttp.ClientError as err:
@@ -88,28 +88,35 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
 
     @staticmethod
     def _parse_offer(offer: dict) -> dict:
-        retailer = offer.get("retailer") or {}
+        advertisers = offer.get("advertisers") or []
+        retailer_name = advertisers[0].get("name", "Unbekannt") if advertisers else "Unbekannt"
+
         price = offer.get("price")
-        regular_price = offer.get("regular_price")
+        old_price = offer.get("oldPrice")
 
         discount_percent = None
-        if price is not None and regular_price and regular_price > price:
-            discount_percent = round((1 - price / regular_price) * 100)
+        if price is not None and old_price and old_price > price:
+            discount_percent = round((1 - price / old_price) * 100)
+
+        validity = (offer.get("validityDates") or [{}])[0]
+        product = offer.get("product") or {}
+        unit = offer.get("unit") or {}
+        categories = offer.get("categories") or []
 
         return {
             "id": offer.get("id", ""),
-            "name": offer.get("name", "Unbekannt"),
+            "name": product.get("name", "Unbekannt"),
             "description": offer.get("description", ""),
             "price": price,
-            "regular_price": regular_price,
+            "regular_price": old_price,
             "discount_percent": discount_percent,
-            "unit": offer.get("unit", ""),
+            "unit": unit.get("shortName", ""),
             "quantity": offer.get("quantity", ""),
-            "retailer": retailer.get("name", "Unbekannt"),
-            "retailer_logo": retailer.get("logo_url", ""),
-            "retailer_color": retailer.get("color", ""),
-            "valid_from": offer.get("valid_from", ""),
-            "valid_to": offer.get("valid_to", ""),
-            "image_url": offer.get("image_url", ""),
-            "category": offer.get("category", {}).get("name", "") if offer.get("category") else "",
+            "retailer": retailer_name,
+            "retailer_logo": "",
+            "retailer_color": "",
+            "valid_from": validity.get("from", ""),
+            "valid_to": validity.get("to", ""),
+            "image_url": "",
+            "category": categories[0].get("name", "") if categories else "",
         }

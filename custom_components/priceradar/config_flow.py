@@ -83,7 +83,7 @@ class PriceRadarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         try:
             async with session.get(
                 MARKTGURU_API_URL,
-                params={"as": "web", "limit": 1, "postal_code": postal_code, "q": product},
+                params={"as": "web", "limit": 1, "zipCode": postal_code, "q": product},
                 headers=MARKTGURU_HEADERS,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
