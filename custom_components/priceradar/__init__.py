@@ -5,6 +5,7 @@ import pathlib
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import DOMAIN, PLATFORMS, URL_BASE, CARD_URL
@@ -20,11 +21,9 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
     card_path = pathlib.Path(__file__).parent / "priceradar-card.js"
     if card_path.exists():
-        hass.http.register_static_path(
-            LOVELACE_RESOURCE_URL,
-            str(card_path),
-            cache_headers=False,
-        )
+        await hass.http.async_register_static_paths([
+            StaticPathConfig(LOVELACE_RESOURCE_URL, str(card_path), False)
+        ])
         await _async_register_lovelace_resource(hass, LOVELACE_RESOURCE_URL)
 
     return True
