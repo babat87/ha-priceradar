@@ -99,13 +99,16 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
             discount_percent = round((1 - price / old_price) * 100)
 
         validity = (offer.get("validityDates") or [{}])[0]
-        product = offer.get("product") or {}
+        brand = offer.get("brand") or {}
         unit = offer.get("unit") or {}
         categories = offer.get("categories") or []
 
+        # Brand name (e.g. "Philadelphia") is more useful than generic product.name
+        name = brand.get("name") or (offer.get("product") or {}).get("name", "Unbekannt")
+
         return {
             "id": offer.get("id", ""),
-            "name": product.get("name", "Unbekannt"),
+            "name": name,
             "description": offer.get("description", ""),
             "price": price,
             "regular_price": old_price,

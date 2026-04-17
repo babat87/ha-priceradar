@@ -1,7 +1,7 @@
 DOMAIN = "priceradar"
 PLATFORMS = ["sensor"]
 
-MARKTGURU_API_URL = "https://api.marktguru.de/api/v1/offers"
+MARKTGURU_API_URL = "https://api.marktguru.de/api/v1/offers/search"
 MARKTGURU_HEADERS = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "de-DE,de;q=0.9,en;q=0.8",
