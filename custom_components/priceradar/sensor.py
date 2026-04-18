@@ -29,10 +29,12 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: PriceRadarCoordinator = hass.data[DOMAIN][entry.entry_id]
+    _LOGGER.debug("Setting up sensors for products: %s", coordinator.products)
     entities = [
         PriceRadarSensor(coordinator, product, entry.entry_id)
         for product in coordinator.products
     ]
+    _LOGGER.debug("Created %d sensor entities", len(entities))
     async_add_entities(entities, True)
 
 

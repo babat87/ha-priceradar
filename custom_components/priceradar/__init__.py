@@ -48,20 +48,27 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 
 async def _async_register_lovelace_resource(hass: HomeAssistant, url: str) -> bool:
-    lovelace = hass.data.get("lovelace")
-    _LOGGER.debug("Lovelace data keys: %s", list(lovelace.keys()) if lovelace else "None")
-
-    if not lovelace:
-        _LOGGER.warning("PriceRadar: hass.data['lovelace'] is None — cannot auto-register card")
-        return False
-
-    resources = lovelace.get("resources")
-    if resources is None:
-        _LOGGER.warning("PriceRadar: lovelace['resources'] is None (YAML mode?) — cannot auto-register card")
-        return False
-
     try:
-        existing_urls = {r["url"] for r in resources.async_items()}
+        lovelace = hass.data.get("lovelace")
+        if not lovelace:
+            _LOGGER.warning("PriceRadar: lovelace not in hass.data")
+            return False
+
+        # HA 2024+: LovelaceData is a dataclass with .resources attribute
+        # Older HA: dict-like with "resources" key
+        if hasattr(lovelace, "resources"):
+            resources = lovelace.resources
+        elif hasattr(lovelace, "get"):
+            resources = lovelace.get("resources")
+        else:
+            _LOGGER.warning("PriceRadar: unknown lovelace structure: %s", type(lovelace))
+            return False
+
+        if resources is None:
+            _LOGGER.warning("PriceRadar: lovelace resources is None (YAML mode?)")
+            return False
+
+        existing_urls = {r["url"] for r in await resources.async_items()}
         if url in existing_urls:
             _LOGGER.debug("PriceRadar resource already registered: %s", url)
             return True

@@ -29,7 +29,9 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, session: aiohttp.ClientSession, entry) -> None:
         self.session = session
         self.postal_code: str = entry.data[CONF_POSTAL_CODE]
-        self.products: list[str] = entry.data[CONF_PRODUCTS]
+        self.products: list[str] = entry.options.get(CONF_PRODUCTS, entry.data[CONF_PRODUCTS])
+        _LOGGER.warning("PriceRadar DEBUG — data.products=%s options=%s → loaded=%s",
+                        entry.data.get(CONF_PRODUCTS), entry.options, self.products)
         self.max_offers: int = entry.options.get(
             CONF_MAX_OFFERS, entry.data.get(CONF_MAX_OFFERS, DEFAULT_MAX_OFFERS)
         )
@@ -81,7 +83,13 @@ class PriceRadarCoordinator(DataUpdateCoordinator):
 
                 data = await response.json(content_type=None)
                 offers = data.get("results", [])
-                return [self._parse_offer(o) for o in offers if o.get("price") is not None]
+                with_price = [o for o in offers if o.get("price") is not None]
+                _LOGGER.warning(
+                    "PriceRadar DEBUG '%s': total=%d, with_price=%d, first=%s",
+                    product, len(offers), len(with_price),
+                    offers[0] if offers else "KEINE ANGEBOTE",
+                )
+                return [self._parse_offer(o) for o in with_price]
 
         except aiohttp.ClientError as err:
             raise UpdateFailed(f"Verbindungsfehler: {err}") from err
